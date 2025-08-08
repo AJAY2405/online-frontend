@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axiosInstance from '@/utils/axiosInstance'; // ✅ Use preconfigured axios
+import axios from 'axios'; // ❌ Removed axiosInstance
 import {
   Table,
   TableBody,
@@ -20,17 +20,19 @@ const CompaniesTable = () => {
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
 
-  // ✅ Fetch companies on component mount
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await axiosInstance.get('/api/v1/company/get'); // No need to add base URL
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/company/get`,
+          { withCredentials: true } // ✅ Allow cookies
+        );
         setCompanies(res.data.companies || []);
         setFilteredCompanies(res.data.companies || []);
       } catch (error) {
         console.error('Error fetching companies:', error);
         if (error.response?.status === 401) {
-          navigate('/login'); // ✅ use navigate instead of window.location
+          navigate('/login'); // 🔐 Unauthorized
         }
       }
     };
@@ -38,7 +40,6 @@ const CompaniesTable = () => {
     fetchCompanies();
   }, [navigate]);
 
-  // ✅ Filter companies when search text changes
   useEffect(() => {
     const filtered = searchText
       ? companies.filter((company) =>
@@ -98,9 +99,3 @@ const CompaniesTable = () => {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
-    </div>
-  );
-};
-
-export default CompaniesTable;
