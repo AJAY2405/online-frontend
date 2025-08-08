@@ -1,5 +1,7 @@
+// src/components/CompaniesTable.jsx
+
 import React, { useEffect, useState } from 'react';
-import axios from 'axios'; // ❌ Removed axiosInstance
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -13,6 +15,7 @@ import { Avatar, AvatarImage } from '../ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Edit2, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { COMPANY_API_END_POINT } from '@/utils/constant';
 
 const CompaniesTable = () => {
   const [companies, setCompanies] = useState([]);
@@ -20,19 +23,20 @@ const CompaniesTable = () => {
   const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
 
+  // Fetch companies
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/v1/company/get`,
-          { withCredentials: true } // ✅ Allow cookies
-        );
-        setCompanies(res.data.companies || []);
-        setFilteredCompanies(res.data.companies || []);
+        const res = await axios.get(`${COMPANY_API_END_POINT}/get`, {
+          withCredentials: true, // Include cookies
+        });
+        const data = res.data.companies || [];
+        setCompanies(data);
+        setFilteredCompanies(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
         if (error.response?.status === 401) {
-          navigate('/login'); // 🔐 Unauthorized
+          navigate('/login'); // redirect to login if unauthorized
         }
       }
     };
@@ -40,13 +44,13 @@ const CompaniesTable = () => {
     fetchCompanies();
   }, [navigate]);
 
+  // Search filter
   useEffect(() => {
     const filtered = searchText
       ? companies.filter((company) =>
           company.name.toLowerCase().includes(searchText.toLowerCase())
         )
       : companies;
-
     setFilteredCompanies(filtered);
   }, [searchText, companies]);
 
@@ -99,3 +103,9 @@ const CompaniesTable = () => {
             </TableRow>
           ))}
         </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+export default CompaniesTable;
