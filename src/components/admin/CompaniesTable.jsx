@@ -35,9 +35,7 @@ const CompaniesTable = () => {
         setFilteredCompanies(data);
       } catch (error) {
         console.error('Error fetching companies:', error);
-        if (error.response?.status === 401) {
-          navigate('/login'); // redirect to login if unauthorized
-        }
+        
       }
     };
 
