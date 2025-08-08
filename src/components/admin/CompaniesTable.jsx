@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '@/utils/axiosInstance'; // ✅ Use preconfigured axios
 import {
   Table,
   TableBody,
@@ -16,66 +16,51 @@ import { useNavigate } from 'react-router-dom';
 
 const CompaniesTable = () => {
   const [companies, setCompanies] = useState([]);
-  const [filterCompany, setFilterCompany] = useState([]);
-  const [searchCompanyByText, setSearchCompanyByText] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [filteredCompanies, setFilteredCompanies] = useState([]);
+  const [searchText, setSearchText] = useState('');
   const navigate = useNavigate();
 
-  // ✅ Fetch companies from backend
+  // ✅ Fetch companies on component mount
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/v1/company/get`,
-          {
-            withCredentials: true, // 👈 Sends cookie with token
-          }
-        );
-        setCompanies(res.data.companies);
-        setFilterCompany(res.data.companies);
+        const res = await axiosInstance.get('/api/v1/company/get'); // No need to add base URL
+        setCompanies(res.data.companies || []);
+        setFilteredCompanies(res.data.companies || []);
       } catch (error) {
         console.error('Error fetching companies:', error);
         if (error.response?.status === 401) {
-          navigate('/login'); // ✅ React Router redirect (no page reload)
+          navigate('/login'); // ✅ use navigate instead of window.location
         }
-      } finally {
-        setLoading(false); // ✅ Stop loading once request is done
       }
     };
 
     fetchCompanies();
   }, [navigate]);
 
-  // ✅ Filter companies by search text
+  // ✅ Filter companies when search text changes
   useEffect(() => {
-    if (searchCompanyByText) {
-      const filtered = companies.filter((company) =>
-        company.name.toLowerCase().includes(searchCompanyByText.toLowerCase())
-      );
-      setFilterCompany(filtered);
-    } else {
-      setFilterCompany(companies);
-    }
-  }, [searchCompanyByText, companies]);
+    const filtered = searchText
+      ? companies.filter((company) =>
+          company.name.toLowerCase().includes(searchText.toLowerCase())
+        )
+      : companies;
 
-  // ✅ Show loading state
-  if (loading) {
-    return <div className="p-4">Loading companies...</div>;
-  }
+    setFilteredCompanies(filtered);
+  }, [searchText, companies]);
 
   return (
     <div className="pt-10 px-4">
-      {/* Search bar */}
       <input
         type="text"
         placeholder="Search companies..."
-        value={searchCompanyByText}
-        onChange={(e) => setSearchCompanyByText(e.target.value)}
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
         className="mb-4 p-2 border rounded w-full max-w-sm"
       />
 
       <Table>
-        <TableCaption>A list of your recently registered companies</TableCaption>
+        <TableCaption>List of your recently registered companies</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Logo</TableHead>
@@ -85,41 +70,33 @@ const CompaniesTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filterCompany.length > 0 ? (
-            filterCompany.map((company) => (
-              <TableRow key={company._id}>
-                <TableCell>
-                  <Avatar>
-                    <AvatarImage src={company.logo} />
-                  </Avatar>
-                </TableCell>
-                <TableCell>{company.name}</TableCell>
-                <TableCell>{company.createdAt.split('T')[0]}</TableCell>
-                <TableCell className="text-right">
-                  <Popover>
-                    <PopoverTrigger>
-                      <MoreHorizontal />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-32">
-                      <div
-                        onClick={() => navigate(`/admin/companies/${company._id}`)}
-                        className="flex items-center gap-2 w-fit cursor-pointer"
-                      >
-                        <Edit2 className="w-4" />
-                        <span>Edit</span>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center py-4">
-                No companies found.
+          {filteredCompanies.map((company) => (
+            <TableRow key={company._id}>
+              <TableCell>
+                <Avatar>
+                  <AvatarImage src={company.logo} />
+                </Avatar>
+              </TableCell>
+              <TableCell>{company.name}</TableCell>
+              <TableCell>{company.createdAt?.split('T')[0]}</TableCell>
+              <TableCell className="text-right">
+                <Popover>
+                  <PopoverTrigger>
+                    <MoreHorizontal />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-32">
+                    <div
+                      onClick={() => navigate(`/admin/companies/${company._id}`)}
+                      className="flex items-center gap-2 w-fit cursor-pointer"
+                    >
+                      <Edit2 className="w-4" />
+                      <span>Edit</span>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </TableCell>
             </TableRow>
-          )}
+          ))}
         </TableBody>
       </Table>
     </div>
