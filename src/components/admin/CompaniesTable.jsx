@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -11,28 +12,62 @@ import {
 import { Avatar, AvatarImage } from '../ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Edit2, MoreHorizontal } from 'lucide-react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 const CompaniesTable = () => {
-  const { companies, searchCompanyByText } = useSelector((store) => store.company);
-  const [filterCompany, setFilterCompany] = useState(companies);
+  const [companies, setCompanies] = useState([]);
+  const [filterCompany, setFilterCompany] = useState([]);
+  const [searchCompanyByText, setSearchCompanyByText] = useState('');
   const navigate = useNavigate();
 
+  // ✅ Fetch companies from backend
   useEffect(() => {
-    const filteredCompany =
-      companies.length >= 0 &&
-      companies.filter((company) => {
-        if (!searchCompanyByText) return true;
-        return company?.name?.toLowerCase().includes(searchCompanyByText.toLowerCase());
-      });
-    setFilterCompany(filteredCompany);
-  }, [companies, searchCompanyByText]);
+    const fetchCompanies = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/company/get`,
+          {
+            withCredentials: true, // 👈 Sends cookie with token
+          }
+        );
+        setCompanies(res.data.companies);
+        setFilterCompany(res.data.companies);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+        if (error.response?.status === 401) {
+          window.location.href = '/login'; // Redirect if not authorized
+        }
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+  // ✅ Filter companies by search text
+  useEffect(() => {
+    if (searchCompanyByText) {
+      const filtered = companies.filter((company) =>
+        company.name.toLowerCase().includes(searchCompanyByText.toLowerCase())
+      );
+      setFilterCompany(filtered);
+    } else {
+      setFilterCompany(companies);
+    }
+  }, [searchCompanyByText, companies]);
 
   return (
-    <div className="pt-10">
+    <div className="pt-10 px-4">
+      {/* Optional: Search bar */}
+      <input
+        type="text"
+        placeholder="Search companies..."
+        value={searchCompanyByText}
+        onChange={(e) => setSearchCompanyByText(e.target.value)}
+        className="mb-4 p-2 border rounded w-full max-w-sm"
+      />
+
       <Table>
-        <TableCaption>A list of your recent registered companies</TableCaption>
+        <TableCaption>A list of your recently registered companies</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Logo</TableHead>
@@ -51,7 +86,7 @@ const CompaniesTable = () => {
               </TableCell>
               <TableCell>{company.name}</TableCell>
               <TableCell>{company.createdAt.split('T')[0]}</TableCell>
-              <TableCell className="text-right cursor-pointer">
+              <TableCell className="text-right">
                 <Popover>
                   <PopoverTrigger>
                     <MoreHorizontal />
