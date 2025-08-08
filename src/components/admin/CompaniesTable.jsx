@@ -18,6 +18,7 @@ const CompaniesTable = () => {
   const [companies, setCompanies] = useState([]);
   const [filterCompany, setFilterCompany] = useState([]);
   const [searchCompanyByText, setSearchCompanyByText] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // ✅ Fetch companies from backend
@@ -35,13 +36,15 @@ const CompaniesTable = () => {
       } catch (error) {
         console.error('Error fetching companies:', error);
         if (error.response?.status === 401) {
-          window.location.href = '/login'; // Redirect if not authorized
+          navigate('/login'); // ✅ React Router redirect (no page reload)
         }
+      } finally {
+        setLoading(false); // ✅ Stop loading once request is done
       }
     };
 
     fetchCompanies();
-  }, []);
+  }, [navigate]);
 
   // ✅ Filter companies by search text
   useEffect(() => {
@@ -55,9 +58,14 @@ const CompaniesTable = () => {
     }
   }, [searchCompanyByText, companies]);
 
+  // ✅ Show loading state
+  if (loading) {
+    return <div className="p-4">Loading companies...</div>;
+  }
+
   return (
     <div className="pt-10 px-4">
-      {/* Optional: Search bar */}
+      {/* Search bar */}
       <input
         type="text"
         placeholder="Search companies..."
@@ -77,33 +85,41 @@ const CompaniesTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filterCompany?.map((company) => (
-            <TableRow key={company._id}>
-              <TableCell>
-                <Avatar>
-                  <AvatarImage src={company.logo} />
-                </Avatar>
-              </TableCell>
-              <TableCell>{company.name}</TableCell>
-              <TableCell>{company.createdAt.split('T')[0]}</TableCell>
-              <TableCell className="text-right">
-                <Popover>
-                  <PopoverTrigger>
-                    <MoreHorizontal />
-                  </PopoverTrigger>
-                  <PopoverContent className="w-32">
-                    <div
-                      onClick={() => navigate(`/admin/companies/${company._id}`)}
-                      className="flex items-center gap-2 w-fit cursor-pointer"
-                    >
-                      <Edit2 className="w-4" />
-                      <span>Edit</span>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+          {filterCompany.length > 0 ? (
+            filterCompany.map((company) => (
+              <TableRow key={company._id}>
+                <TableCell>
+                  <Avatar>
+                    <AvatarImage src={company.logo} />
+                  </Avatar>
+                </TableCell>
+                <TableCell>{company.name}</TableCell>
+                <TableCell>{company.createdAt.split('T')[0]}</TableCell>
+                <TableCell className="text-right">
+                  <Popover>
+                    <PopoverTrigger>
+                      <MoreHorizontal />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-32">
+                      <div
+                        onClick={() => navigate(`/admin/companies/${company._id}`)}
+                        className="flex items-center gap-2 w-fit cursor-pointer"
+                      >
+                        <Edit2 className="w-4" />
+                        <span>Edit</span>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center py-4">
+                No companies found.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
