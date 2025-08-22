@@ -18,11 +18,12 @@ const Navbar = () => {
 
   const logoutHandler = async () => {
     try {
-      console.log("API URL:", import.meta.env.VITE_API_URL);
+      //console.log("API URL:", import.meta.env.VITE_API_URL);
 
       const res = await axios.get(`${USER_API_END_POINT}/logout`, {
         withCredentials: true,
       });
+      console.log("hay");
       if (res.data.success) {
         dispatch(setUser(null));
         navigate("/");
@@ -180,7 +181,10 @@ const Navbar = () => {
                   <p className="text-sm mb-2 text-muted-foreground">
                     {user?.profile?.bio || "No bio available"}
                   </p>
-                  <Button onClick={logoutHandler} className="w-full">
+                  <Button
+                    onClick={logoutHandler}
+                    className="w-full bg-amber-700 hover:bg-red-400"
+                  >
                     Logout
                   </Button>
                 </>
