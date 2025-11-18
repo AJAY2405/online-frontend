@@ -43,14 +43,21 @@ const Navbar = () => {
     <div className="fixed top-0 left-0 right-0 z-50 bg-[#d4d4d6] shadow-md">
       <div className="flex items-center justify-between mx-auto max-w-7xl h-16 px-4">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center">
           <img
             src="/Images/logo.png"
             alt="Logo"
-            className="w-10 h-10 object-contain"
+            className="w-35 h-35 object-contain"
           />
-          <h1 className="text-2xl font-bold text-[#0d22d6]">
-            Online <span className="text-[#07b521]">Job</span>
+          <h1 className="flex flex-col leading-tight">
+            <span className="text-[11px] tracking-widest text-sky-400">
+              ONLINE
+            </span>
+
+            <span className="text-2xl font-bold tracking-tight">
+              <span className="text-blue-700">EDUCATE</span>
+              <span className="text-green-500"> JOBS</span>
+            </span>
           </h1>
         </div>
 

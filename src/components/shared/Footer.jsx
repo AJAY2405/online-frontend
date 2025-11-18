@@ -5,9 +5,23 @@ const Footer = () => {
     <footer className="bg-gray-900 text-white py-6 w-full">
       <div className="max-w-6xl mx-auto px-6 text-center space-y-4">
 
-        <h1 className="text-2xl font-bold text-[#0d22d6]">
-          ONLINE<span className="text-[#07b521]">JOB</span>
-        </h1>
+         <div className="flex items-center">
+          <img
+            src="/Images/logo.png"
+            alt="Logo"
+            className="w-35 h-35 object-contain"
+          />
+          <h1 className="flex flex-col leading-tight">
+            <span className="text-[11px] tracking-widest text-sky-400">
+              ONLINE
+            </span>
+
+            <span className="text-2xl font-bold tracking-tight">
+              <span className="text-blue-700">EDUCATE</span>
+              <span className="text-green-500"> JOBS</span>
+            </span>
+          </h1>
+        </div>
 
         <p className="text-sm text-gray-300 max-w-xl mx-auto">
           May your passion for teaching inspire young minds and shape the future
