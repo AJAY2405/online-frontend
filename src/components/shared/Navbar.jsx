@@ -47,7 +47,7 @@ const Navbar = () => {
           <img
             src="/Images/logo.png"
             alt="Logo"
-            className="w-35 h-35 object-contain"
+            className="w-30 h-25"
           />
           <h1 className="flex flex-col leading-tight">
             <span className="text-[11px] tracking-widest text-sky-400">
@@ -55,7 +55,7 @@ const Navbar = () => {
             </span>
 
             <span className="text-2xl font-bold tracking-tight">
-              <span className="text-blue-700">EDUCATE</span>
+              <span className="text-blue-700">EDUCATER</span>
               <span className="text-green-500"> JOBS</span>
             </span>
           </h1>

@@ -17,7 +17,7 @@ const Footer = () => {
             </span>
 
             <span className="text-2xl font-bold tracking-tight">
-              <span className="text-blue-700">EDUCATE</span>
+              <span className="text-blue-700">EDUCATER</span>
               <span className="text-green-500"> JOBS</span>
             </span>
           </h1>
